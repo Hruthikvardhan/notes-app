@@ -1,0 +1,461 @@
+================================================================
+  SPRINT PLAN
+  Project  : Notes App (MERN Stack)
+  Author   : Hruthik
+  Total    : 5 Sprints  |  ~10 Days  |  Solo Dev
+  Format   : Each sprint = 2 days approx
+================================================================
+
+SPRINT OVERVIEW
+---------------
+  Sprint 1  →  Backend Foundation (Models + Auth API)
+  Sprint 2  →  Notes + Categories API (Full CRUD + Business Logic)
+  Sprint 3  →  Frontend Foundation (Auth UI + Layout)
+  Sprint 4  →  Notes UI (Editor, Grid, Search, Trash, Profile)
+  Sprint 5  →  Polish + Testing + Deploy (Render + Vercel)
+
+PRIORITY SCALE
+  [P1] Must have — core feature, blocks other work
+  [P2] Should have — important for completeness
+  [P3] Nice to have — polish, can defer if short on time
+
+STATUS OPTIONS
+  [ ] Not started
+  [~] In progress
+  [x] Done
+  [!] Blocked
+
+================================================================
+SPRINT 1 — BACKEND FOUNDATION (MODELS + AUTH API)
+Duration : Day 1–2
+Goal     : Express server running, MongoDB connected, register
+           and login work end-to-end via Postman/curl
+================================================================
+
+TASK-001  Initialize Node project + install dependencies   [P1] [ ]
+  - npm init, npm install express mongoose dotenv cors
+    bcryptjs jsonwebtoken express-validator morgan
+    multer cloudinary helmet compression cookie-parser
+  - npm install -D nodemon
+  Estimated time: 15 min
+
+TASK-002  Create folder structure                          [P1] [ ]
+  server/{models,controllers,routes,middleware,services,
+          utils,config}
+  Estimated time: 5 min
+
+TASK-003  config/database.js + config/cloudinary.js         [P1] [ ]
+  - Mongoose connect function with error handling
+  - Cloudinary SDK config from env vars
+  Estimated time: 15 min
+
+TASK-004  utils/ApiResponse.js + utils/ApiError.js           [P1] [ ]
+  - Consistent success/error response shape across all routes
+  Estimated time: 10 min
+
+TASK-005  utils/asyncHandler.js                              [P1] [ ]
+  - Wraps async controllers so try/catch isn't repeated everywhere
+  Estimated time: 10 min
+
+TASK-006  utils/wordCounter.js                               [P2] [ ]
+  - stripMarkdown(), getWordCount(), getReadTime() (200 wpm)
+  Estimated time: 15 min
+
+TASK-007  models/User.js                                     [P1] [ ]
+  - name, email (unique), password (hashed, select:false),
+    profilePic, bio, theme, defaultNoteColor, lastLogin,
+    isActive, refreshToken
+  - pre('save') bcrypt hashing hook
+  - comparePassword() and toSafeObject() instance methods
+  Estimated time: 30 min
+
+TASK-008  middleware/authMiddleware.js (protect)              [P1] [ ]
+  - Verify Bearer access token, attach req.user
+  - Handle expired vs invalid token distinctly
+  Estimated time: 20 min
+
+TASK-009  middleware/errorHandler.js + notFound               [P1] [ ]
+  - Central error handler: Mongoose CastError, duplicate key
+    (11000), validation errors → consistent JSON shape
+  Estimated time: 20 min
+
+TASK-010  middleware/validate.js (express-validator wrapper)  [P2] [ ]
+  Estimated time: 10 min
+
+TASK-011  controllers/authController.js                       [P1] [ ]
+  - register, login (issue access + refresh JWT)
+  - logout, getMe, updateProfile, changePassword
+  - uploadAvatar (Cloudinary), refreshToken
+  Estimated time: 60 min
+
+TASK-012  routes/authRoutes.js + server.js wiring              [P1] [ ]
+  - Mount /api/auth, helmet, cors, cookie-parser, morgan
+  - /api/health route
+  Estimated time: 20 min
+
+TASK-013  Manual test via curl/Postman                        [P1] [ ]
+  - POST /api/auth/register → 201 + tokens
+  - POST /api/auth/login → 200 + tokens
+  - GET /api/auth/me with Bearer token → user object
+  - POST /api/auth/refresh-token with cookie → new access token
+  Estimated time: 20 min
+
+SPRINT 1 DONE WHEN:
+  ✓ npm run dev starts server, "MongoDB connected" logs
+  ✓ Register/login return access token + set refresh cookie
+  ✓ Protected /me route rejects requests with no/expired token
+  ✓ Passwords are stored hashed, never returned in responses
+
+================================================================
+SPRINT 2 — NOTES + CATEGORIES API (FULL CRUD + BUSINESS LOGIC)
+Duration : Day 3–4
+Goal     : Every endpoint in the notes/categories/user spec
+           works, tested via Postman
+================================================================
+
+TASK-014  models/Note.js                                      [P1] [ ]
+  - title, content, contentText, userId, color, category,
+    tags[], images[], checklistItems[], noteType,
+    isPinned/isArchived/isTrashed/isPublic, reminderDate,
+    wordCount, readTime, trashedAt, pinnedAt
+  - Text index on title/contentText/tags for search
+  - Compound index on userId+isTrashed+isArchived+isPinned
+  Estimated time: 30 min
+
+TASK-015  models/Category.js + models/ActivityLog.js           [P1] [ ]
+  - Category: name, color, icon, userId, notesCount
+  - ActivityLog: userId, action enum, noteId, noteTitle, timestamp
+  Estimated time: 20 min
+
+TASK-016  middleware/upload.js (Multer, memory storage)         [P1] [ ]
+  - 5MB limit, image mimetypes only
+  Estimated time: 15 min
+
+TASK-017  services/cloudinaryService.js                         [P1] [ ]
+  - uploadBuffer() streams Multer buffer to Cloudinary
+  - deleteImage() by publicId
+  Estimated time: 20 min
+
+TASK-018  services/trashCleanupService.js                       [P2] [ ]
+  - cleanupTrash() deletes notes trashed > 30 days ago
+  - startTrashCleanup() runs on boot + every 24h interval
+  Estimated time: 20 min
+
+TASK-019  services/statsService.js                              [P2] [ ]
+  - getUserStats() aggregation: totalNotes, totalWords,
+    pinnedCount, archivedCount, notesThisMonth, byColor
+  Estimated time: 25 min
+
+TASK-020  controllers/noteController.js — core CRUD              [P1] [ ]
+  - createNote, getNotes (filters + pagination), getNoteById,
+    updateNote, trashNote, deleteNotePermanently
+  Estimated time: 60 min
+
+TASK-021  controllers/noteController.js — actions                [P1] [ ]
+  - togglePin, toggleArchive, restoreNote, updateColor,
+    togglePublic, addImage, removeImage, toggleChecklistItem
+  Estimated time: 60 min
+
+TASK-022  controllers/noteController.js — list views             [P1] [ ]
+  - getPinnedNotes, getArchivedNotes, getTrashedNotes
+    (with daysRemaining calc), getPublicNotes (no auth),
+    searchNotes ($text + textScore ranking)
+  Estimated time: 40 min
+
+TASK-023  routes/noteRoutes.js                                   [P1] [ ]
+  - Mount /api/notes, public route declared before protect()
+  Estimated time: 15 min
+
+TASK-024  controllers/categoryController.js + routes             [P1] [ ]
+  - create, list, update, delete (detaches notes, doesn't
+    delete them), getCategoryNotes
+  Estimated time: 30 min
+
+TASK-025  controllers/userController.js + routes                 [P2] [ ]
+  - getStats, getActivity, updatePreferences, deleteAccount
+    (cascades notes + activity logs)
+  Estimated time: 25 min
+
+TASK-026  Manual test via Postman — full note lifecycle          [P1] [ ]
+  - Create → pin → archive → trash → restore →
+    permanent delete
+  - Upload image to a note, then remove it
+  - Search notes by keyword, verify relevance order
+  - Verify trash days-remaining decreases correctly
+  Estimated time: 40 min
+
+SPRINT 2 DONE WHEN:
+  ✓ Every endpoint in the API spec responds correctly
+  ✓ Search returns relevant notes ranked by text score
+  ✓ Trash + restore + permanent delete all work
+  ✓ Category deletion detaches notes instead of deleting them
+  ✓ Stats endpoint returns correct aggregated numbers
+
+================================================================
+SPRINT 3 — FRONTEND FOUNDATION (AUTH UI + LAYOUT)
+Duration : Day 5–6
+Goal     : User can register, log in, and see the app shell
+           (sidebar, topbar, empty notes grid)
+================================================================
+
+TASK-027  Vite + React + Tailwind setup                           [P1] [ ]
+  - npm create vite, install Tailwind + all frontend deps
+  - Custom color palette (paper/ink/accent) in tailwind.config.js
+  Estimated time: 25 min
+
+TASK-028  utils/api.js — Axios instance + interceptors            [P1] [ ]
+  - Attach Bearer token from localStorage on every request
+  - On 401 (not from /auth/*): silently POST /auth/refresh-token,
+    retry original request once, queue concurrent 401s
+  Estimated time: 30 min
+
+TASK-029  context/AuthContext.jsx                                  [P1] [ ]
+  - login, register, logout, updateUser, loadUser on mount
+  Estimated time: 25 min
+
+TASK-030  context/ThemeContext.jsx + context/NoteContext.jsx       [P1] [ ]
+  - Theme: toggles 'dark' class on <html>, persists to localStorage
+  - NoteContext: notes/pinnedNotes/categories state + fetch/
+    create/update/trash/pin/archive with optimistic UI updates
+  Estimated time: 40 min
+
+TASK-031  hooks: useAuth, useTheme, useNotes, useSearch,
+           useAutoSave                                             [P1] [ ]
+  - useSearch: debounced (300ms) call to /notes/search
+  - useAutoSave: diffs current vs last-saved snapshot every 30s
+  Estimated time: 40 min
+
+TASK-032  components/UI: Button, Modal, Badge, Skeleton,
+           EmptyState                                              [P1] [ ]
+  Estimated time: 40 min
+
+TASK-033  pages/Login.jsx + pages/Register.jsx                     [P1] [ ]
+  - Register includes live password-strength indicator
+  Estimated time: 40 min
+
+TASK-034  components/Layout: Sidebar, Topbar, Layout               [P1] [ ]
+  - Sidebar: user card, New note button, nav links, categories,
+    Settings, Log out
+  - Topbar: search entry point, sort/color filters, view toggle,
+    theme toggle
+  Estimated time: 50 min
+
+TASK-035  App.jsx — routing + ProtectedRoute                       [P1] [ ]
+  - Public: /login, /register, /public
+  - Protected (inside Layout): /notes, /notes/pinned, /notes/new,
+    /notes/:id/edit, /search, /archive, /trash, /profile
+  - ErrorBoundary wraps the whole app
+  Estimated time: 25 min
+
+SPRINT 3 DONE WHEN:
+  ✓ npm run dev starts without errors
+  ✓ Register + login work against the live backend
+  ✓ Refreshing the page keeps the user logged in
+  ✓ Sidebar + topbar render, dark mode toggle works
+  ✓ Logged-out visit to /notes redirects to /login
+
+================================================================
+SPRINT 4 — NOTES UI (EDITOR, GRID, SEARCH, TRASH, PROFILE)
+Duration : Day 7–8
+Goal     : Every page in the app is fully functional against
+           the real API
+================================================================
+
+TASK-036  components/Notes: ColorPicker, ChecklistNote            [P1] [ ]
+  - ChecklistNote: progress bar, add/remove/check items
+  Estimated time: 30 min
+
+TASK-037  components/Notes/NoteCard.jsx                            [P1] [ ]
+  - Renders TEXT/CHECKLIST/IMAGE variants
+  - Hover actions: pin, color, edit, archive, delete
+  - Text color auto-adjusts (light/dark) based on card color
+  Estimated time: 40 min
+
+TASK-038  components/Notes/NoteGrid.jsx                            [P1] [ ]
+  - react-masonry-css grid, loading skeletons, empty states
+  Estimated time: 20 min
+
+TASK-039  components/Notes/NoteEditor.jsx                          [P1] [ ]
+  - Title + markdown editor (@uiw/react-md-editor) or checklist
+  - Note type switcher, image upload, color/category/tags,
+    pin/public toggles, word count + read time display
+  - useAutoSave wired to create/update note API calls
+  Estimated time: 70 min
+
+TASK-040  pages/Notes.jsx                                          [P1] [ ]
+  - Pinned section + main grid, wired to NoteContext
+  Estimated time: 25 min
+
+TASK-041  pages/Search.jsx                                         [P1] [ ]
+  - useSearch hook, highlighted matches, empty state
+  Estimated time: 25 min
+
+TASK-042  pages/Archive.jsx + pages/Trash.jsx                       [P1] [ ]
+  - Archive: unarchive / trash actions
+  - Trash: days-remaining, restore, delete permanently,
+    empty trash
+  Estimated time: 35 min
+
+TASK-043  pages/PublicNotes.jsx + pages/NotFound.jsx                [P2] [ ]
+  Estimated time: 20 min
+
+TASK-044  pages/Profile.jsx                                         [P1] [ ]
+  - Edit profile + avatar upload, change password,
+    theme toggle, statistics cards, recent activity list,
+    export JSON, delete account (confirm modal)
+  Estimated time: 60 min
+
+TASK-045  Manual test — full user journey                           [P1] [ ]
+  - Register → create TEXT/CHECKLIST/IMAGE notes → pin →
+    search → archive → trash → restore → permanent delete →
+    edit profile → export → logout → login again
+  Estimated time: 40 min
+
+SPRINT 4 DONE WHEN:
+  ✓ All pages render and function against the live backend
+  ✓ Autosave silently persists changes every 30s
+  ✓ Image upload/remove works on a note and on the avatar
+  ✓ Trash/restore/permanent-delete cycle works end-to-end
+  ✓ Statistics on Profile page reflect real note counts
+
+================================================================
+SPRINT 5 — POLISH + TESTING + DEPLOY (RENDER + VERCEL)
+Duration : Day 9–10
+Goal     : Bug-free, polished, live on the internet
+================================================================
+
+TASK-046  Visual polish pass                                        [P2] [ ]
+  - Verify hover states, empty states, toast copy consistency
+  - Confirm dark mode looks correct across every page
+  Estimated time: 30 min
+
+TASK-047  Responsive design check                                    [P2] [ ]
+  - Test at 375px, 768px, 1024px, 1440px
+  Estimated time: 20 min
+
+TASK-048  Manual testing (full run)                                  [P1] [ ]
+  - Execute all test cases in manual_testing.txt
+  - Log and fix any P1 bugs found
+  Estimated time: 60 min
+
+TASK-049  Add .gitignore + push to GitHub                            [P1] [ ]
+  - Exclude node_modules, dist, .env
+  - git init, add, commit, create GitHub repo, push
+  Estimated time: 20 min
+
+TASK-050  Deploy backend to Render                                   [P1] [ ]
+  - New Web Service, root dir "server", build "npm install",
+    start "npm start", Free instance
+  - Add all env vars (MONGO_URI, JWT secrets, Cloudinary,
+    NODE_ENV=production, CLIENT_URL placeholder)
+  - Verify /api/health returns {"status":"ok"}
+  Estimated time: 25 min
+
+TASK-051  Point frontend at the live backend                         [P1] [ ]
+  - api.js reads VITE_API_URL env var in production, falls
+    back to Vite's dev proxy locally
+  - Commit and push the change
+  Estimated time: 15 min
+
+TASK-052  Deploy frontend to Vercel                                  [P1] [ ]
+  - Import repo, Root Directory "client"
+  - Add env var VITE_API_URL = Render backend URL
+  - Deploy, get live *.vercel.app URL
+  Estimated time: 20 min
+
+TASK-053  Close the loop — update CLIENT_URL on Render                [P1] [ ]
+  - Set CLIENT_URL on Render to the real Vercel URL so CORS
+    accepts requests from the deployed frontend
+  - Redeploy backend
+  Estimated time: 10 min
+
+TASK-054  Post-deploy verification                                    [P1] [ ]
+  - Register a new account on the live Vercel URL
+  - Create/pin/edit/search/archive/trash a note
+  - Upload an avatar and a note image
+  - Refresh mid-session — still logged in
+  - Confirm CORS/cookie flow works cross-origin
+  Estimated time: 20 min
+
+TASK-055  Write README.md                                             [P3] [ ]
+  - Live demo link, tech stack, setup instructions, features
+  Estimated time: 30 min
+
+SPRINT 5 DONE WHEN:
+  ✓ Backend live on Render, /api/health returns ok
+  ✓ Frontend live on Vercel, pointed at the Render backend
+  ✓ CORS configured correctly (CLIENT_URL matches Vercel URL)
+  ✓ Full register → create note → logout → login cycle works
+    on the live URLs
+  ✓ README written with live links
+
+================================================================
+TASK SUMMARY TABLE
+================================================================
+
+Sprint  Task     Description                              Priority Status
+------  -------  ---------------------------------------  -------- ------
+  1     001      Node project + dependencies                 P1     [ ]
+  1     002      Backend folder structure                    P1     [ ]
+  1     003      database.js + cloudinary.js config           P1     [ ]
+  1     004      ApiResponse / ApiError utils                 P1     [ ]
+  1     005      asyncHandler util                            P1     [ ]
+  1     006      wordCounter util                             P2     [ ]
+  1     007      User model                                   P1     [ ]
+  1     008      authMiddleware (protect)                     P1     [ ]
+  1     009      errorHandler middleware                      P1     [ ]
+  1     010      validate middleware                          P2     [ ]
+  1     011      authController                                P1     [ ]
+  1     012      authRoutes + server.js                        P1     [ ]
+  1     013      Manual test auth API                          P1     [ ]
+  2     014      Note model                                    P1     [ ]
+  2     015      Category + ActivityLog models                P1     [ ]
+  2     016      upload middleware (Multer)                    P1     [ ]
+  2     017      cloudinaryService                              P1     [ ]
+  2     018      trashCleanupService                            P2     [ ]
+  2     019      statsService (aggregation)                     P2     [ ]
+  2     020      noteController — core CRUD                     P1     [ ]
+  2     021      noteController — actions                       P1     [ ]
+  2     022      noteController — list views + search            P1     [ ]
+  2     023      noteRoutes                                       P1     [ ]
+  2     024      categoryController + routes                      P1     [ ]
+  2     025      userController + routes                          P2     [ ]
+  2     026      Manual test notes API                             P1     [ ]
+  3     027      Vite + React + Tailwind setup                     P1     [ ]
+  3     028      api.js Axios + interceptors                       P1     [ ]
+  3     029      AuthContext                                       P1     [ ]
+  3     030      ThemeContext + NoteContext                        P1     [ ]
+  3     031      Custom hooks (5)                                  P1     [ ]
+  3     032      UI components (5)                                 P1     [ ]
+  3     033      Login + Register pages                            P1     [ ]
+  3     034      Sidebar + Topbar + Layout                         P1     [ ]
+  3     035      App.jsx routing                                   P1     [ ]
+  4     036      ColorPicker + ChecklistNote                       P1     [ ]
+  4     037      NoteCard                                          P1     [ ]
+  4     038      NoteGrid                                          P1     [ ]
+  4     039      NoteEditor                                        P1     [ ]
+  4     040      Notes page                                        P1     [ ]
+  4     041      Search page                                       P1     [ ]
+  4     042      Archive + Trash pages                             P1     [ ]
+  4     043      PublicNotes + NotFound pages                      P2     [ ]
+  4     044      Profile page                                      P1     [ ]
+  4     045      Manual test full user journey                     P1     [ ]
+  5     046      Visual polish pass                                P2     [ ]
+  5     047      Responsive design check                           P2     [ ]
+  5     048      Full manual test run                              P1     [ ]
+  5     049      GitHub push                                       P1     [ ]
+  5     050      Deploy backend (Render)                           P1     [ ]
+  5     051      Point frontend at live backend                    P1     [ ]
+  5     052      Deploy frontend (Vercel)                          P1     [ ]
+  5     053      Update CLIENT_URL on Render                       P1     [ ]
+  5     054      Post-deploy verification                          P1     [ ]
+  5     055      README.md                                         P3     [ ]
+
+TOTAL TASKS : 55
+P1 (Must)   : 44
+P2 (Should) : 9
+P3 (Nice)   : 2
+
+================================================================
+END OF SPRINT PLAN
+================================================================

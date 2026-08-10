@@ -1,0 +1,248 @@
+================================================================
+  REQUIREMENTS GATHERING DOCUMENT
+  Project  : Notes App (MERN Stack)
+  Author   : Hruthik
+  Version  : 1.0
+  Date     : August 2026
+================================================================
+
+----------------------------------------------------------------
+SECTION 1 — PROJECT OVERVIEW
+----------------------------------------------------------------
+
+Project Name     : Notes App
+Project Type     : Fullstack Web Application (MERN)
+Developer        : Hruthik
+Technology Stack : MongoDB, Express.js, React.js, Node.js,
+                   JWT Auth, Cloudinary, Tailwind CSS
+Deployment       : Render (backend API) + Vercel (frontend)
+Purpose          : To demonstrate real-world fullstack skills —
+                   REST API design, JWT auth, MongoDB aggregation,
+                   image uploads, and a production-quality
+                   Google Keep–style note-taking UI
+
+----------------------------------------------------------------
+SECTION 2 — STAKEHOLDER INFORMATION
+----------------------------------------------------------------
+
+Stakeholder      : Hruthik
+End Users        : Anyone who registers on the deployed app
+Goal             : Show employers/clients a production-quality
+                   fullstack MERN project with real auth, a real
+                   database, and real image storage — not a mock
+
+----------------------------------------------------------------
+SECTION 3 — FUNCTIONAL REQUIREMENTS
+----------------------------------------------------------------
+
+FR-01  USER AUTHENTICATION
+  FR-01.1  User can register with name, email, password
+  FR-01.2  User can log in with email and password
+  FR-01.3  User can log out from the sidebar
+  FR-01.4  Session persists across refresh (access token in
+            localStorage, refresh token in httpOnly cookie)
+  FR-01.5  Unauthenticated users are redirected to /login
+  FR-01.6  Access token silently refreshes on expiry (401 →
+            auto-retry via Axios interceptor)
+  FR-01.7  User can change password from Settings
+  FR-01.8  User can upload a profile picture (Cloudinary)
+
+FR-02  NOTES — CORE CRUD
+  FR-02.1  Create a note with title + content (markdown)
+  FR-02.2  Edit an existing note
+  FR-02.3  Soft-delete a note (moves to Trash)
+  FR-02.4  Permanently delete a note from Trash
+  FR-02.5  Restore a note from Trash
+  FR-02.6  Word count and read time auto-calculated on save
+
+FR-03  NOTE TYPES
+  FR-03.1  TEXT notes — full markdown editor with live preview
+  FR-03.2  CHECKLIST notes — add/remove/check items, progress bar
+  FR-03.3  IMAGE notes — one or more images per note (Cloudinary)
+
+FR-04  NOTE ORGANIZATION
+  FR-04.1  Pin / unpin a note
+  FR-04.2  Archive / unarchive a note
+  FR-04.3  Assign a note to a category
+  FR-04.4  Add free-form tags to a note
+  FR-04.5  Set a background color (12 preset colors)
+  FR-04.6  Mark a note public (viewable without login)
+  FR-04.7  Set an optional reminder date on a note
+
+FR-05  NOTES LIST / GRID VIEW
+  FR-05.1  Masonry grid layout (Google Keep style)
+  FR-05.2  Pinned notes shown in a separate section above others
+  FR-05.3  Grid/list view toggle
+  FR-05.4  Sort by newest, oldest, title A-Z, title Z-A
+  FR-05.5  Filter by category, tag, color, or note type
+  FR-05.6  Pagination (page + limit query params)
+
+FR-06  SEARCH
+  FR-06.1  Debounced search (300ms) across title/content/tags
+  FR-06.2  Backed by MongoDB text index with relevance ranking
+  FR-06.3  Matched terms highlighted in results
+
+FR-07  CATEGORIES
+  FR-07.1  Create a category with name, color, icon
+  FR-07.2  Edit or delete a category
+  FR-07.3  View all notes under a category
+  FR-07.4  Deleting a category detaches its notes (does not
+            delete the notes themselves)
+
+FR-08  TRASH
+  FR-08.1  Trashed notes list with days-remaining indicator
+  FR-08.2  Notes older than 30 days in trash are auto-purged
+            (background cleanup job)
+  FR-08.3  Empty Trash button (permanently deletes all)
+
+FR-09  PUBLIC NOTES
+  FR-09.1  Public notes page accessible without login
+  FR-09.2  Read-only view, author name + avatar shown
+
+FR-10  PROFILE / SETTINGS
+  FR-10.1  Edit name and bio
+  FR-10.2  Change profile picture
+  FR-10.3  Change password
+  FR-10.4  Toggle Light/Dark theme
+  FR-10.5  View account statistics (total notes, notes this
+            month, total words written) via aggregation
+  FR-10.6  View recent activity log (created/updated/pinned/etc)
+  FR-10.7  Export all notes as a downloadable JSON file
+  FR-10.8  Delete account (cascades: deletes all notes + logs)
+
+FR-11  IMAGES
+  FR-11.1  Upload image to a note (stored on Cloudinary)
+  FR-11.2  Remove an image from a note
+  FR-11.3  Upload/replace profile avatar
+
+----------------------------------------------------------------
+SECTION 4 — NON-FUNCTIONAL REQUIREMENTS
+----------------------------------------------------------------
+
+NFR-01  PERFORMANCE
+  NFR-01.1  Notes list paginated (12 per page default)
+  NFR-01.2  Debounced search to avoid excessive API calls
+  NFR-01.3  Auto-save every 30 seconds while editing, skips
+             the API call if nothing changed since last save
+
+NFR-02  RESPONSIVENESS
+  NFR-02.1  Masonry grid adapts from 1 to 4 columns by width
+  NFR-02.2  Sidebar hidden on small screens (mobile-first)
+
+NFR-03  USABILITY
+  NFR-03.1  Light/Dark theme support
+  NFR-03.2  Toast notifications for all create/update/delete
+             actions
+  NFR-03.3  Empty states shown for every list view (no notes,
+             no search results, empty trash, empty archive)
+  NFR-03.4  Skeleton loaders while notes are fetching
+
+NFR-04  SECURITY
+  NFR-04.1  Passwords hashed with bcrypt before storage
+  NFR-04.2  JWT access token short-lived (15 min)
+  NFR-04.3  JWT refresh token long-lived (7 days), httpOnly,
+             not accessible to client-side JS
+  NFR-04.4  Helmet middleware for standard HTTP security headers
+  NFR-04.5  Every note/category/user route scoped to the
+             authenticated user's own _id (no cross-user access)
+
+NFR-05  DATA PERSISTENCE
+  NFR-05.1  MongoDB Atlas (cloud) as the database of record
+  NFR-05.2  Images persisted on Cloudinary, not the server disk
+  NFR-05.3  Trash retention: 30 days before permanent deletion
+
+NFR-06  BROWSER SUPPORT
+  NFR-06.1  Chrome 90+ (primary target)
+  NFR-06.2  Firefox 88+
+  NFR-06.3  Edge 90+
+
+----------------------------------------------------------------
+SECTION 5 — CONSTRAINTS & ASSUMPTIONS
+----------------------------------------------------------------
+
+CONSTRAINTS
+  - Free-tier hosting (Render free web service, Vercel Hobby,
+    MongoDB Atlas free cluster, Cloudinary free tier)
+  - Render free tier spins down after inactivity (cold start
+    delay of ~30-50s on first request after idle)
+  - No real-time collaboration (single-user editing only)
+  - No email verification or password-reset email flow
+
+ASSUMPTIONS
+  - Users are on modern browsers with JavaScript enabled
+  - Users have a stable internet connection
+  - Project is for portfolio/demo purposes, not production scale
+  - One MongoDB Atlas cluster shared across personal projects,
+    each project isolated into its own database
+
+----------------------------------------------------------------
+SECTION 6 — OUT OF SCOPE
+----------------------------------------------------------------
+
+  - Real-time collaborative editing (WebSockets / CRDT)
+  - Sharing a note with another specific user
+  - Email/SMS notifications for reminders
+  - Two-factor authentication
+  - Rich media beyond images (no audio/video attachments)
+  - Multi-language support (i18n)
+  - Mobile native app (web-responsive only)
+
+----------------------------------------------------------------
+SECTION 7 — DEPENDENCIES
+----------------------------------------------------------------
+
+BACKEND
+Package              Version    Purpose
+-------------------  ---------  --------------------------------
+express               4.x       Web framework / REST API
+mongoose              8.x       MongoDB ODM
+bcryptjs               2.x      Password hashing
+jsonwebtoken            9.x     JWT access/refresh tokens
+express-validator      7.x      Request body validation
+multer                  1.x     Multipart form-data (image upload)
+cloudinary              1.x     Image storage/CDN
+helmet                  7.x     HTTP security headers
+compression              1.x    Gzip response compression
+morgan                   1.x    Request logging
+cors                     2.x    Cross-origin requests
+cookie-parser            1.x    Parse httpOnly refresh cookie
+dotenv                  16.x    Environment variable loading
+
+FRONTEND
+Package                Version    Purpose
+---------------------  ---------  ------------------------------
+react                    18.x     Core UI framework
+react-dom                18.x     DOM rendering
+vite                      5.x     Build tool and dev server
+react-router-dom          6.x     Client-side routing
+tailwindcss                3.x    Utility-first CSS
+axios                     1.x     HTTP client + interceptors
+framer-motion             11.x    Animations and transitions
+react-hot-toast            2.x    Toast notifications
+react-icons                5.x    Icon library
+react-loading-skeleton     3.x    Skeleton loaders
+react-masonry-css          1.x    Masonry grid layout
+@uiw/react-md-editor        4.x   Markdown editor with preview
+date-fns                    3.x   Date formatting
+react-color                2.x    Color picker
+
+----------------------------------------------------------------
+SECTION 8 — GLOSSARY
+----------------------------------------------------------------
+
+Note         : A single record of type TEXT, CHECKLIST, or IMAGE
+Pin          : Marking a note to keep it at the top of the list
+Archive      : Hiding a note from the main view without deleting
+Trash        : Soft-delete state, purged automatically after 30 days
+Category     : A user-defined folder/label applied to notes
+Tag          : A free-form keyword attached to a note
+Access token : Short-lived JWT proving identity for API calls
+Refresh token: Long-lived JWT (httpOnly cookie) used to silently
+               reissue a new access token
+Aggregation  : MongoDB pipeline used to compute account statistics
+Text index   : MongoDB index enabling full-text search with
+               relevance scoring
+
+================================================================
+END OF REQUIREMENTS GATHERING DOCUMENT
+================================================================

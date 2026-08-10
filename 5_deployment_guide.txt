@@ -1,0 +1,455 @@
+================================================================
+  DEPLOYMENT GUIDE
+  Project   : Notes App (MERN Stack)
+  Platform  : Render (backend API) + Vercel (frontend)
+  Database  : MongoDB Atlas
+  Images    : Cloudinary
+  Author    : Hruthik
+================================================================
+
+----------------------------------------------------------------
+SECTION 1 — WHY TWO PLATFORMS
+----------------------------------------------------------------
+
+Unlike a frontend-only SPA, this project has a real Express/
+MongoDB backend that must stay running and hold persistent
+connections (DB, JWT). Vercel is built for static sites and
+serverless functions, not a long-running Node server with
+Mongoose connections, background jobs, and file uploads — so:
+
+  BACKEND  (server/)  →  Render   (Node Web Service, free tier)
+  FRONTEND (client/)  →  Vercel   (static SPA hosting, free tier)
+
+The frontend calls the backend's public HTTPS URL over the
+network — the two are not on the same domain, so CORS and
+cookie settings must be configured correctly (covered below).
+
+----------------------------------------------------------------
+SECTION 2 — PRE-DEPLOYMENT CHECKLIST
+----------------------------------------------------------------
+
+Complete ALL of these before deploying. Check each one:
+
+[ ] 1. Backend runs correctly on localhost:5000 (npm run dev)
+[ ] 2. Frontend runs correctly on localhost:5173 (npm run dev)
+[ ] 3. Full login → create note → logout cycle works locally
+[ ] 4. .env is NOT committed to git (only .env.example is)
+[ ] 5. .gitignore excludes node_modules, dist, .env
+[ ] 6. MongoDB Atlas cluster exists with a dedicated database
+        for this project (separate from other projects)
+[ ] 7. Cloudinary account created (cloud name, API key, secret)
+[ ] 8. JWT_ACCESS_SECRET and JWT_REFRESH_SECRET generated
+        (long random strings, different from each other)
+[ ] 9. GitHub repo created and code pushed
+[ ] 10. client/src/utils/api.js reads VITE_API_URL for the
+         production backend URL (falls back to Vite's dev
+         proxy locally — see Section 5)
+
+----------------------------------------------------------------
+SECTION 3 — MONGODB ATLAS SETUP
+----------------------------------------------------------------
+
+STEP 3.1 — CREATE OR REUSE A CLUSTER
+---------------------------------------
+1. Go to https://cloud.mongodb.com
+2. Use an existing free (M0) cluster, or create a new one
+3. One cluster can safely host multiple projects — just give
+   each project its OWN database name so collections don't
+   collide (e.g. two projects both having a "users" collection)
+
+STEP 3.2 — CREATE A DEDICATED DATABASE FOR THIS PROJECT
+-----------------------------------------------------------
+You do NOT need to manually create the database — MongoDB
+creates it automatically the first time your app writes data
+to it (e.g. on first user registration). Simply choose a
+database name and put it in your connection string, e.g.:
+
+  mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/notes-app-mern?retryWrites=true&w=majority
+
+The "notes-app-mern" segment is the database name — change it
+to isolate this project's data from any other project sharing
+the same cluster.
+
+STEP 3.3 — NETWORK ACCESS
+-----------------------------
+1. Atlas → Security → Network Access
+2. Add IP Address → Allow Access from Anywhere (0.0.0.0/0)
+   (fine for a portfolio project; a real production app would
+   restrict this to known server IPs)
+
+STEP 3.4 — DATABASE USER
+----------------------------
+1. Atlas → Security → Database Access
+2. Confirm a database user exists with a username/password
+   (this is DIFFERENT from your Atlas login — it's what goes
+   in the connection string)
+
+----------------------------------------------------------------
+SECTION 4 — CLOUDINARY SETUP
+----------------------------------------------------------------
+
+1. Sign up free at https://cloudinary.com
+2. From the Dashboard, copy:
+   - Cloud Name
+   - API Key
+   - API Secret
+3. These three values go into the backend's environment
+   variables as CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY,
+   CLOUDINARY_API_SECRET
+
+----------------------------------------------------------------
+SECTION 5 — PREPARE THE FRONTEND FOR A SEPARATE BACKEND HOST
+----------------------------------------------------------------
+
+In development, Vite's dev server proxies /api/* requests to
+localhost:5000 (see client/vite.config.js). In production there
+is no proxy — the frontend and backend live on different
+domains — so client/src/utils/api.js must be able to point at
+an explicit backend URL:
+
+  const baseURL = import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api`
+    : '/api';
+
+  const api = axios.create({ baseURL, withCredentials: true });
+
+This means:
+  - Locally, with no VITE_API_URL set, it still uses the Vite
+    proxy ('/api') exactly as before
+  - In production, Vercel injects VITE_API_URL at build time
+    and every request goes straight to the Render backend
+
+Commit and push this change before deploying.
+
+----------------------------------------------------------------
+SECTION 6 — GITHUB SETUP
+----------------------------------------------------------------
+
+STEP 6.1 — ADD .gitignore (project root)
+--------------------------------------------
+  node_modules/
+  .env
+  dist/
+
+STEP 6.2 — INITIALIZE AND PUSH
+-----------------------------------
+  git init
+  git add .
+  git commit -m "Initial commit: MERN notes app"
+  git remote add origin https://github.com/<username>/<repo>.git
+  git branch -M main
+  git push -u origin main
+
+STEP 6.3 — VERIFY ON GITHUB
+--------------------------------
+  - server/ and client/ folders are present
+  - node_modules is NOT present in either folder
+  - server/.env is NOT present (only .env.example)
+
+----------------------------------------------------------------
+SECTION 7 — DEPLOY THE BACKEND TO RENDER
+----------------------------------------------------------------
+
+STEP 7.1 — CREATE A NEW WEB SERVICE
+----------------------------------------
+1. Go to https://render.com → sign in with GitHub
+2. Click "New +" → "Web Service"
+3. Select your repo
+
+STEP 7.2 — CONFIGURE THE SERVICE
+--------------------------------------
+  Name             : notes-app (or any name)
+  Language/Runtime : Node
+  Root Directory   : server
+  Build Command    : npm install
+  Start Command    : npm start          ← NOT "npm run dev"
+  Instance Type    : Free
+
+  IMPORTANT: use "npm start" (runs `node server.js`), never
+  "npm run dev" (runs nodemon, a dev-only file-watcher that is
+  a devDependency and shouldn't run on a production server).
+
+STEP 7.3 — ADD ENVIRONMENT VARIABLES
+-------------------------------------------
+Use Render's "Add from .env" button to paste the whole block
+at once, or add them individually:
+
+  PORT=5000
+  NODE_ENV=production
+  MONGO_URI=<your Atlas connection string with the project's db name>
+  JWT_ACCESS_SECRET=<long random string>
+  JWT_REFRESH_SECRET=<different long random string>
+  JWT_ACCESS_EXPIRY=15m
+  JWT_REFRESH_EXPIRY=7d
+  CLOUDINARY_CLOUD_NAME=<your cloud name>
+  CLOUDINARY_API_KEY=<your api key>
+  CLOUDINARY_API_SECRET=<your api secret>
+  CLIENT_URL=http://localhost:5173   ← temporary placeholder,
+                                         updated in Section 9
+
+  NODE_ENV must be "production" here (not "development") —
+  this enables secure cookies and hides stack traces from
+  error responses.
+
+STEP 7.4 — DEPLOY
+-----------------------
+1. Click "Create Web Service" / "Deploy Web Service"
+2. Watch the build logs for:
+     ==> Build successful
+     ==> Running 'npm start'
+     Server running on port 5000 [production]
+     MongoDB connected: <cluster-host>
+     ==> Your service is live 🎉
+3. Note the live URL, e.g.:
+     https://notes-app-xxxx.onrender.com
+
+STEP 7.5 — VERIFY THE BACKEND
+-----------------------------------
+Visit <your-render-url>/api/health in a browser.
+Expected response:
+     {"status":"ok","timestamp":"..."}
+
+NOTE ON FREE TIER: Render's free instances spin down after
+~15 minutes of inactivity. The next request after that will
+take 30-50 seconds to "wake" the service — this is expected
+behavior on the free tier, not a bug.
+
+----------------------------------------------------------------
+SECTION 8 — DEPLOY THE FRONTEND TO VERCEL
+----------------------------------------------------------------
+
+STEP 8.1 — IMPORT THE PROJECT
+-----------------------------------
+1. Go to https://vercel.com/new
+2. Import the same GitHub repo
+
+STEP 8.2 — CONFIGURE THE PROJECT
+--------------------------------------
+  Root Directory : client        ← must be set explicitly, since
+                                     the repo root has both
+                                     server/ and client/
+  Framework      : Vite (auto-detected)
+  Build Command  : npm run build (auto-filled)
+  Output Dir     : dist (auto-filled)
+
+STEP 8.3 — ADD ENVIRONMENT VARIABLE
+------------------------------------------
+  Key   : VITE_API_URL
+  Value : https://notes-app-xxxx.onrender.com
+          (your Render backend URL — no trailing slash,
+           no /api suffix; api.js appends /api itself)
+
+STEP 8.4 — DEPLOY
+-----------------------
+1. Click "Deploy"
+2. Vercel installs dependencies, runs the Vite build, and
+   uploads dist/ to its CDN
+3. You get a live URL, e.g.:
+     https://notes-app-xyz.vercel.app
+
+----------------------------------------------------------------
+SECTION 9 — CLOSE THE LOOP: UPDATE CORS ON RENDER
+----------------------------------------------------------------
+
+The backend's CORS config only allows requests from the origin
+in CLIENT_URL. Right now that's still set to the localhost
+placeholder from Section 7.3 — this must be updated or the
+live frontend's requests will be blocked by CORS.
+
+1. Go to Render → your service → Environment
+2. Edit CLIENT_URL to your real Vercel URL, e.g.:
+     CLIENT_URL=https://notes-app-xyz.vercel.app
+3. Save — Render automatically redeploys with the new value
+
+----------------------------------------------------------------
+SECTION 10 — POST-DEPLOY VERIFICATION CHECKLIST
+----------------------------------------------------------------
+
+Test these on the LIVE Vercel URL (not localhost):
+
+[ ] 1.  Login page loads at the Vercel URL
+[ ] 2.  Register a new account — no CORS error in console
+[ ] 3.  Redirected to /notes after registering
+[ ] 4.  Create a TEXT note, a CHECKLIST note, an IMAGE note
+[ ] 5.  Pin / archive / trash / restore a note
+[ ] 6.  Search returns correct results
+[ ] 7.  Upload a profile avatar — appears correctly
+[ ] 8.  Refresh the page mid-session — still logged in
+[ ] 9.  Log out — redirected to /login, session cleared
+[ ] 10. Visit /public (logged out) — public notes visible
+[ ] 11. Wait for the backend to idle (15+ min), then reload —
+         first request is slow, then app works normally
+[ ] 12. Open on a phone — layout is responsive
+
+----------------------------------------------------------------
+SECTION 11 — AUTOMATIC RE-DEPLOYS (FREE ON BOTH PLATFORMS)
+----------------------------------------------------------------
+
+Both Render and Vercel watch your GitHub repo. Every push to
+main triggers an automatic redeploy on both platforms:
+
+  1. Edit code locally (frontend or backend)
+  2. Test locally (npm run dev on both)
+  3. git add . && git commit -m "..." && git push
+  4. Render rebuilds the backend automatically
+  5. Vercel rebuilds the frontend automatically
+  6. Both live URLs update within a couple of minutes
+
+Check deploy status:
+  - Render: dashboard.render.com → your service → "Events"/"Logs"
+  - Vercel: vercel.com/dashboard → your project → "Deployments"
+
+----------------------------------------------------------------
+SECTION 12 — TROUBLESHOOTING COMMON ISSUES
+----------------------------------------------------------------
+
+ISSUE 1: CORS error in browser console on the live site
+  Cause : CLIENT_URL on Render doesn't match the Vercel URL
+  Fix   : Update CLIENT_URL on Render to the exact Vercel URL
+          (including https://, no trailing slash), redeploy
+
+ISSUE 2: Frontend loads but every API call fails / hangs
+  Cause : VITE_API_URL missing or wrong on Vercel, or backend
+          is still spinning up from idle (free tier cold start)
+  Fix   : Verify VITE_API_URL in Vercel's Environment Variables;
+          wait 30-50s and retry if the backend was idle
+
+ISSUE 3: "Route not found" JSON when visiting the backend
+          root URL directly
+  Cause : This is expected — the backend has no UI, only
+          /api/* routes. Visiting / or /login on the Render
+          URL will always 404; that's normal
+  Fix   : Not a bug — test the frontend at the Vercel URL, and
+          the backend only via /api/health or actual API calls
+
+ISSUE 4: Logged out unexpectedly / refresh token doesn't work
+          cross-origin
+  Cause : Refresh token cookie is httpOnly + secure; needs
+          NODE_ENV=production on Render and withCredentials:
+          true on the frontend Axios instance (already set)
+  Fix   : Confirm NODE_ENV=production on Render; confirm
+          CLIENT_URL matches exactly
+
+ISSUE 5: Backend build fails with "Cannot find module"
+  Cause : A dependency wasn't installed / package.json out of
+          sync
+  Fix   : Run npm install locally, commit the updated
+          package-lock.json, push again
+
+ISSUE 6: Images don't upload in production
+  Cause : Cloudinary env vars missing or incorrect on Render
+  Fix   : Double check CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET
+          in Render's Environment tab
+
+ISSUE 7: Accidentally overwrote .env locally
+  Cause : Re-running "copy .env.example .env" overwrites any
+          edits already made
+  Fix   : Re-enter MONGO_URI and JWT secrets; consider keeping
+          a backup copy outside the repo while developing
+
+----------------------------------------------------------------
+SECTION 13 — FREE TIER LIMITS
+----------------------------------------------------------------
+
+RENDER (Free Web Service)
+  - Spins down after ~15 min inactivity (cold start ~30-50s)
+  - 750 free instance-hours/month
+  - Fine for a portfolio/demo project
+
+VERCEL (Hobby plan)
+  - Unlimited deployments
+  - 100 GB bandwidth/month
+  - 6,000 build minutes/month
+  - Free HTTPS + global CDN
+
+MONGODB ATLAS (M0 Free Cluster)
+  - 512 MB storage
+  - Shared vCPU
+  - Enough for a demo project's data volume
+
+CLOUDINARY (Free tier)
+  - 25 GB storage / 25 GB monthly bandwidth
+  - Enough for note images and avatars at demo scale
+
+----------------------------------------------------------------
+SECTION 14 — SHARING YOUR DEPLOYED APP
+----------------------------------------------------------------
+
+FOR PORTFOLIO / RESUME:
+  "Live Demo: https://notes-app-xyz.vercel.app"
+  "API: https://notes-app-xxxx.onrender.com/api/health"
+  "GitHub: https://github.com/<username>/<repo>"
+
+FOR INTERVIEWS:
+  - Open the live Vercel URL, register, create a note live
+  - Show the Render dashboard logs (MongoDB connected, live)
+  - Walk through the JWT refresh flow in api.js
+  - Show the MongoDB Atlas collections with real data
+
+FOR LINKEDIN:
+  "Just shipped a fullstack MERN notes app! 🗒️
+   JWT auth with silent refresh, MongoDB text search,
+   Cloudinary image uploads, deployed on Render + Vercel.
+   Live: [vercel url] | Code: [github url]
+   #MERN #React #NodeJS #MongoDB #WebDev"
+
+----------------------------------------------------------------
+SECTION 15 — QUICK REFERENCE COMMANDS
+----------------------------------------------------------------
+
+  # Backend
+  cd server
+  npm install
+  npm run dev            → http://localhost:5000 (dev, nodemon)
+  npm start               → production mode (node server.js)
+
+  # Frontend
+  cd client
+  npm install
+  npm run dev             → http://localhost:5173
+  npm run build            → creates dist/ folder
+  npm run preview           → preview the production build
+
+  # Generate a random JWT secret
+  node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+  # Git
+  git add .
+  git commit -m "your message"
+  git push
+
+----------------------------------------------------------------
+SECTION 16 — FILE CHECKLIST BEFORE FIRST PUSH
+----------------------------------------------------------------
+
+  notes-app/
+  ├── .gitignore              ← excludes node_modules, .env, dist
+  ├── README.md
+  ├── server/
+  │   ├── .env.example         ← committed (no real secrets)
+  │   ├── .env                 ← NOT committed
+  │   ├── package.json         ← has "start": "node server.js"
+  │   ├── server.js
+  │   └── (models/controllers/routes/middleware/services/utils/config)
+  └── client/
+      ├── package.json         ← has "build": "vite build"
+      ├── vite.config.js
+      ├── tailwind.config.js
+      ├── index.html
+      └── src/
+          ├── main.jsx
+          ├── App.jsx
+          ├── utils/api.js     ← reads VITE_API_URL
+          ├── components/
+          ├── pages/
+          ├── hooks/
+          └── context/
+
+  MUST NOT EXIST in GitHub:
+  ✗ node_modules/  (either folder)
+  ✗ server/.env
+  ✗ client/dist/
+
+================================================================
+END OF DEPLOYMENT GUIDE
+================================================================

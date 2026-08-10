@@ -1,0 +1,317 @@
+================================================================
+  PAPER DESIGN — WIREFRAMES (ASCII)
+  Project  : Notes App (MERN Stack)
+  Author   : Hruthik
+  Note     : Draw these on paper using these as reference.
+              Each box = a UI element. [] = button, {} = input
+================================================================
+
+----------------------------------------------------------------
+SCREEN 1 — LOGIN PAGE
+----------------------------------------------------------------
+
++------------------------------------------+
+|         (centered card, paper bg)         |
+|                                            |
+|   Welcome back                            |
+|   Sign in to keep writing.                |
+|                                            |
+|   Email                                   |
+|   {                                     } |
+|                                            |
+|   Password                                |
+|   {                                     } |
+|                                            |
+|   [          Sign in          ] ← accent  |
+|                                            |
+|   No account? Create one ← link           |
+|                                            |
++------------------------------------------+
+
+NOTES FOR PAPER SKETCH:
+- Centered white card, rounded corners, soft shadow
+- Background: warm paper tone, not stark white
+- Button: full width, pill-shaped, accent blue
+- Serif display font for heading, sans for body
+
+
+----------------------------------------------------------------
+SCREEN 2 — REGISTER PAGE
+----------------------------------------------------------------
+
++------------------------------------------+
+|   Create your account                     |
+|   A quiet place for your notes.           |
+|                                            |
+|   Name       {                          } |
+|   Email      {                          } |
+|   Password   {                          } |
+|                                            |
+|   [password strength bar — color coded]   |
+|   Very weak → Weak → Fair → Good → Strong |
+|                                            |
+|   [        Create account        ]        |
+|                                            |
+|   Already have an account? Sign in        |
++------------------------------------------+
+
+NOTES:
+- Strength bar fills + changes color live as user types
+- Red → orange → yellow → light green → green
+
+
+----------------------------------------------------------------
+SCREEN 3 — MAIN LAYOUT (Sidebar + Topbar + Grid)
+----------------------------------------------------------------
+
++--------+---------------------------------------------+
+| SIDE   |   TOPBAR: [search] [sort] [color] [grid/list]|
+| BAR    +---------------------------------------------+
+| 264px  |                                               |
+|        |   PINNED (masonry grid)                       |
+| [user] |   [card] [card] [card] [card]                |
+| [+New] |                                               |
+|        |   OTHERS (masonry grid)                       |
+| All    |   [card] [card] [card] [card]                |
+| Pinned |   [card] [card] [card] [card]                |
+| Archive|                                               |
+| Trash  |                                               |
+|        |                                               |
+| Cat 1  |                                               |
+| Cat 2  |                                               |
+|        |                                               |
+| Settings|                                              |
+| Log out|                                               |
++--------+---------------------------------------------+
+
+SIDEBAR DETAIL:
++-------------------+
+|  [av] Name        |
+|       email       |
+|                   |
+|  [+ New note]     |
+|                   |
+|  📄 All notes     |
+|  📌 Pinned        |
+|  🗄  Archived     |
+|  🗑  Trash        |
+|                   |
+|  CATEGORIES       |
+|  📁 Work          |
+|  📁 Personal      |
+|                   |
+|  ⚙️  Settings      |
+|  ↩  Log out       |
++-------------------+
+
+
+----------------------------------------------------------------
+SCREEN 4 — NOTE CARD (zoom in)
+----------------------------------------------------------------
+
++------------------------------------------+
+|  Meeting notes              [pin icon] ⌐ |
+|                                            |
+|  Discuss Q3 roadmap, budget review        |
+|  and hiring plan for the new...           |
+|                                            |
+|  [Work]  #urgent  #roadmap                |
+|                                            |
+|  Aug 5, 2026                              |
+|  ------------------------------------     |
+|  [color] [edit] [archive] [delete]  ← hover only
++------------------------------------------+
+
+CHECKLIST NOTE VARIANT:
++------------------------------------------+
+|  Grocery list                             |
+|  [progress bar ▓▓▓▓▓▓░░░░ 60%]           |
+|  ☑ Milk                                   |
+|  ☑ Eggs                                   |
+|  ☐ Bread                                  |
+|  ☐ Coffee                                 |
++------------------------------------------+
+
+IMAGE NOTE VARIANT:
++------------------------------------------+
+|  Trip photos                              |
+|  [======= image thumbnail =======]        |
++------------------------------------------+
+
+
+----------------------------------------------------------------
+SCREEN 5 — CREATE / EDIT NOTE PAGE
+----------------------------------------------------------------
+
++------------------------------------------+
+|  { Note title                           } |
+|                                            |
+|  [TEXT] [CHECKLIST] [IMAGE]  [📷 Upload]  |
+|                                            |
+|  +--------------------------------------+ |
+|  |  Markdown editor        | Preview     | |
+|  |  (write)                | (rendered)  | |
+|  |                          |            | |
+|  +--------------------------------------+ |
+|  120 words · 1 min read                   |
+|                                            |
+|  [12 color swatches]  [category ▾]        |
+|  [📌 pin]  [🌐 public]                    |
+|                                            |
+|  { add a tag, press Enter }               |
+|  #work  #q3  #roadmap                     |
+|                                            |
+|  All changes saved            [Cancel] [Save]
++------------------------------------------+
+
+NOTES:
+- Autosave indicator bottom-left, updates silently every 30s
+- Color swatches: 12 pastel presets in a row
+- Checklist mode replaces the markdown editor with a
+  check/uncheck list + "+ Add item" row
+
+
+----------------------------------------------------------------
+SCREEN 6 — SEARCH PAGE
+----------------------------------------------------------------
+
++------------------------------------------+
+|  🔍 { Search title, content, or tags…  }  |
++------------------------------------------+
+|  [result card — matched words highlighted]|
+|  [result card — matched words highlighted]|
+|  ...                                      |
++------------------------------------------+
+
+EMPTY STATE (no matches):
++------------------------------------------+
+|              🔍                           |
+|         No results                        |
+|   Nothing matched "xyz". Try a            |
+|   different word.                         |
++------------------------------------------+
+
+
+----------------------------------------------------------------
+SCREEN 7 — TRASH PAGE
+----------------------------------------------------------------
+
++------------------------------------------+
+|  Trash                     [Empty trash]  |
++------------------------------------------+
+|  Old draft                                |
+|  12 days left before permanent deletion   |
+|                              [↺] [✕]      |
++------------------------------------------+
+|  Shopping list                            |
+|  3 days left before permanent deletion    |
+|                              [↺] [✕]      |
++------------------------------------------+
+
+EMPTY STATE:
++------------------------------------------+
+|              🗑                           |
+|         Trash is empty                    |
+|   Deleted notes stay here for 30 days     |
+|   before they're gone for good.           |
++------------------------------------------+
+
+
+----------------------------------------------------------------
+SCREEN 8 — PROFILE / SETTINGS PAGE
+----------------------------------------------------------------
+
++------------------------------------------+
+|  PROFILE                                  |
+|  [avatar]  Change photo                   |
+|  { Name                                 } |
+|  { Bio                                  } |
+|                             [Save profile]|
+|------------------------------------------|
+|  PASSWORD                                 |
+|  { Current password                     } |
+|  { New password                         } |
+|                          [Change password]|
+|------------------------------------------|
+|  APPEARANCE      [☀ Light] [🌙 Dark]      |
+|------------------------------------------|
+|  STATISTICS                               |
+|  [ 42 ]      [ 5 ]        [ 8,120 ]      |
+|  Total notes This month   Words written   |
+|------------------------------------------|
+|  RECENT ACTIVITY                          |
+|  created "Meeting notes"     2h ago       |
+|  pinned  "Grocery list"      1d ago       |
+|------------------------------------------|
+|  [⬇ Export notes as JSON]                 |
+|------------------------------------------|
+|  [🗑 Delete account] ← danger, red text   |
++------------------------------------------+
+
+
+----------------------------------------------------------------
+SCREEN 9 — PUBLIC NOTES PAGE (no auth)
+----------------------------------------------------------------
+
++------------------------------------------+
+|  Public notes                  [Sign in]  |
++------------------------------------------+
+|  [card] [card] [card] [card]              |
+|  each card: title, preview text,          |
+|  author avatar + name at bottom           |
++------------------------------------------+
+
+
+----------------------------------------------------------------
+MOBILE LAYOUT (375px width)
+----------------------------------------------------------------
+
+MOBILE NOTES VIEW:
++---------------------+
+| ☰   Notes      🔍   | ← simple header
++---------------------+
+| [card]              |
+| [card]              |
+| [card]              |
++---------------------+
+| [+ New note] ← FAB  |
++---------------------+
+
+MOBILE NOTE:
+- Sidebar becomes a hidden drawer (hamburger menu)
+- Single-column masonry grid
+- Floating "+ New note" action button bottom-right
+
+
+================================================================
+PAPER DRAWING TIPS
+================================================================
+
+When drawing on paper:
+
+1. Use a ruler for clean boxes
+2. Draw outer page boundary first
+3. Fill sections top → bottom
+4. Use different pen colors:
+   - Black pen: layout boxes and text
+   - Blue pen: interactive elements (buttons, links)
+   - Red pen: error/danger states (delete, trash)
+   - Pencil: notes and annotations
+
+5. Mark dimensions roughly:
+   - Sidebar: ~264px wide
+   - Note card: variable height (masonry), ~260px wide
+   - Grid columns: 4 on desktop, 1 on mobile
+
+6. Use these symbols consistently:
+   [  ] = button
+   {  } = input / textarea
+   [av] = avatar circle
+   ▤    = masonry card
+   📌   = pin icon
+   🗑   = delete/trash icon
+   ↺    = restore icon
+
+================================================================
+END OF PAPER DESIGN DOCUMENT
+================================================================

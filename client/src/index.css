@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-paper text-ink dark:bg-surface-dark dark:text-gray-100 transition-colors duration-200;
+  overflow-x: hidden;
+}
+
+.font-display {
+  font-feature-settings: 'ss01' on;
+}
+
+/* Masonry grid (react-masonry-css) */
+.masonry-grid {
+  display: flex;
+  margin-left: -16px;
+  width: auto;
+}
+.masonry-grid_column {
+  padding-left: 16px;
+  background-clip: padding-box;
+}
+.masonry-grid_column > div {
+  margin-bottom: 16px;
+}
+
+::selection {
+  background: #5B7FDB;
+  color: white;
+}
+
+:focus-visible {
+  outline: 2px solid #3D5FC4;
+  outline-offset: 2px;
+}

@@ -1,0 +1,514 @@
+================================================================
+  MANUAL TESTING DOCUMENT
+  Project   : Notes App (MERN Stack)
+  Tester    : Hruthik
+  Browser   : Chrome (primary), Firefox, Edge
+  Test Type : Functional + API + UI + Regression
+================================================================
+
+HOW TO USE THIS DOCUMENT
+  - Go through each test case one by one
+  - Write PASS or FAIL in the [ ] column
+  - If FAIL: write what actually happened in NOTES
+  - Run again after fixing bugs (regression test)
+
+RESULT KEY
+  [P] = PASS
+  [F] = FAIL
+  [S] = SKIP (feature not implemented)
+  [B] = BLOCKED (depends on failing test)
+
+================================================================
+MODULE 1 — AUTHENTICATION
+================================================================
+
+TEST-AUTH-001  BACKEND HEALTH CHECK
+  Steps:
+    1. Visit <backend-url>/api/health
+  Expected: JSON response {"status":"ok","timestamp":"..."}
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-AUTH-002  REGISTER NEW USER
+  Steps:
+    1. Go to /register
+    2. Enter name, email, password (6+ chars)
+    3. Click "Create account"
+  Expected:
+    - Toast: "Account created"
+    - Redirected to /notes
+    - Access token stored in localStorage
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-AUTH-003  PASSWORD STRENGTH INDICATOR
+  Steps:
+    1. On /register, type a weak password (e.g. "abc")
+  Expected: Bar shows red/"Very weak"
+    2. Type a strong password (e.g. "Str0ng!Pass99")
+  Expected: Bar fills green/"Strong" or "Very strong"
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-AUTH-004  REGISTER WITH DUPLICATE EMAIL
+  Steps:
+    1. Register with an email already in use
+  Expected: Toast error "An account with this email already exists"
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-AUTH-005  LOGIN WITH VALID CREDENTIALS
+  Steps:
+    1. Go to /login
+    2. Enter correct email + password
+    3. Click "Sign in"
+  Expected: Toast "Welcome back", redirected to /notes
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-AUTH-006  LOGIN WITH WRONG PASSWORD
+  Steps:
+    1. Go to /login, enter correct email + wrong password
+  Expected: Toast error "Invalid email or password"
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-AUTH-007  SESSION PERSISTS AFTER REFRESH
+  Steps:
+    1. Log in
+    2. Press F5 to refresh the page
+  Expected: Still on /notes, not redirected to /login
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-AUTH-008  PROTECTED ROUTE REDIRECT
+  Steps:
+    1. Log out (or clear localStorage)
+    2. Navigate directly to /notes
+  Expected: Redirected to /login
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-AUTH-009  ACCESS TOKEN SILENT REFRESH
+  Steps:
+    1. Log in
+    2. Wait for access token to expire (15 min), or manually
+       edit localStorage token to an invalid value
+    3. Perform any action (e.g. open Notes page)
+  Expected:
+    - A 401 triggers a silent POST to /auth/refresh-token
+    - New access token stored, original request retried
+    - No visible error or logout to the user
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-AUTH-010  LOGOUT
+  Steps:
+    1. Log in
+    2. Click "Log out" in sidebar
+  Expected:
+    - Redirected to /login
+    - Access token removed from localStorage
+    - Refresh cookie cleared server-side
+  Result: [ ]
+  Notes: __________________________________________________
+
+----------------------------------------------------------------
+MODULE 2 — NOTES CRUD
+----------------------------------------------------------------
+
+TEST-NOTE-001  CREATE A TEXT NOTE
+  Steps:
+    1. Click "New note" in sidebar
+    2. Enter a title, write markdown content
+    3. Click "Save"
+  Expected:
+    - Toast "Note created"
+    - Note appears in the main grid
+    - Word count and read time calculated
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-NOTE-002  CREATE A CHECKLIST NOTE
+  Steps:
+    1. New note → select CHECKLIST type
+    2. Add 3 items, check 1 of them
+    3. Save
+  Expected: Note card shows a progress bar reflecting 1/3 done
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-NOTE-003  CREATE AN IMAGE NOTE
+  Steps:
+    1. New note → upload an image
+  Expected:
+    - Image uploads to Cloudinary
+    - Thumbnail appears in the editor and on the note card
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-NOTE-004  EDIT AN EXISTING NOTE
+  Steps:
+    1. Click a note to open the editor
+    2. Change the title and content
+    3. Wait for autosave OR click Save
+  Expected: Changes persist after navigating away and back
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-NOTE-005  AUTOSAVE
+  Steps:
+    1. Open a note, type new content
+    2. Wait 30+ seconds without clicking Save
+  Expected:
+    - Status text shows "Saving…" then "All changes saved"
+    - No duplicate saves if content hasn't changed
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-NOTE-006  DELETE (TRASH) A NOTE
+  Steps:
+    1. On a note card, click the trash icon
+  Expected:
+    - Toast "Moved to trash"
+    - Note disappears from the main grid immediately (optimistic)
+    - Note appears in /trash
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-NOTE-007  RESTORE FROM TRASH
+  Steps:
+    1. Go to /trash
+    2. Click restore (↺) on a note
+  Expected: Toast "Note restored", note reappears in main grid
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-NOTE-008  PERMANENT DELETE
+  Steps:
+    1. Go to /trash
+    2. Click permanent delete (✕) on a note
+  Expected:
+    - Toast confirms deletion
+    - Note is gone from Trash and cannot be restored
+    - Any images on that note are removed from Cloudinary
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-NOTE-009  EMPTY TRASH
+  Steps:
+    1. Have 2+ notes in trash
+    2. Click "Empty trash"
+  Expected: All trashed notes permanently deleted at once
+  Result: [ ]
+  Notes: __________________________________________________
+
+----------------------------------------------------------------
+MODULE 3 — NOTE ORGANIZATION
+----------------------------------------------------------------
+
+TEST-ORG-001  PIN / UNPIN A NOTE
+  Steps:
+    1. Hover a note card, click the pin icon
+  Expected:
+    - Note moves into the "Pinned" section
+    - Clicking again unpins it, moves back to main grid
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-ORG-002  ARCHIVE / UNARCHIVE
+  Steps:
+    1. On a note card, click Archive
+  Expected: Note disappears from main grid, appears in /archive
+    2. On /archive, click Archive again (unarchive)
+  Expected: Note returns to the main grid
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-ORG-003  CHANGE NOTE COLOR
+  Steps:
+    1. Hover a note card, open the color picker
+    2. Select a new color
+  Expected: Card background updates immediately, persists on refresh
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-ORG-004  ASSIGN CATEGORY
+  Steps:
+    1. Create a category from the sidebar/editor
+    2. Assign a note to that category
+  Expected:
+    - Category badge appears on the note card
+    - Note appears when filtering by that category
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-ORG-005  DELETE CATEGORY
+  Steps:
+    1. Delete a category that has notes assigned
+  Expected:
+    - Category is removed
+    - Notes that were in it are NOT deleted, just uncategorized
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-ORG-006  ADD / REMOVE TAGS
+  Steps:
+    1. In the editor, type a tag and press Enter
+  Expected: Tag chip appears below the input
+    2. Filter notes by that tag from the topbar
+  Expected: Only tagged notes show
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-ORG-007  TOGGLE NOTE PUBLIC
+  Steps:
+    1. In the editor, toggle "Public" on
+    2. Log out, visit /public
+  Expected: The note appears in the public list, read-only
+  Result: [ ]
+  Notes: __________________________________________________
+
+----------------------------------------------------------------
+MODULE 4 — LIST VIEW, SORT, FILTER
+----------------------------------------------------------------
+
+TEST-LIST-001  MASONRY GRID RENDERS
+  Steps:
+    1. Go to /notes with several notes of varying content length
+  Expected: Cards render in a Pinterest-style masonry layout
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-LIST-002  SORT OPTIONS
+  Steps:
+    1. Change sort dropdown: Newest / Oldest / A-Z / Z-A
+  Expected: Note order updates correctly for each option
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-LIST-003  FILTER BY COLOR
+  Steps:
+    1. Select a color filter in the topbar
+  Expected: Only notes with that color are shown
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-LIST-004  PAGINATION
+  Steps:
+    1. Create 15+ notes
+    2. Check the notes list respects the page/limit params
+  Expected: Notes load in pages of 12 (default limit)
+  Result: [ ]
+  Notes: __________________________________________________
+
+----------------------------------------------------------------
+MODULE 5 — SEARCH
+----------------------------------------------------------------
+
+TEST-SEARCH-001  DEBOUNCED SEARCH
+  Steps:
+    1. Go to /search
+    2. Type a keyword quickly
+  Expected: API call fires ~300ms after typing stops, not on
+             every keystroke
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-SEARCH-002  SEARCH MATCHES TITLE/CONTENT/TAGS
+  Steps:
+    1. Search a word that exists only in one note's tag
+  Expected: That note appears in results
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-SEARCH-003  SEARCH TERM HIGHLIGHTING
+  Steps:
+    1. Search a keyword present in a note's title
+  Expected: The matched word is visually highlighted in results
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-SEARCH-004  NO RESULTS STATE
+  Steps:
+    1. Search a nonsense string with no matches
+  Expected: "No results" empty state shown
+  Result: [ ]
+  Notes: __________________________________________________
+
+----------------------------------------------------------------
+MODULE 6 — PROFILE / SETTINGS
+----------------------------------------------------------------
+
+TEST-PROF-001  EDIT PROFILE
+  Steps:
+    1. Go to /profile
+    2. Change name and bio, click Save
+  Expected: Toast "Profile updated", sidebar reflects new name
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-PROF-002  UPLOAD AVATAR
+  Steps:
+    1. On /profile, click "Change photo", select an image
+  Expected: New avatar appears in sidebar and profile page
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-PROF-003  CHANGE PASSWORD
+  Steps:
+    1. Enter current + new password, click "Change password"
+  Expected: Toast success
+    2. Log out, log back in with the new password
+  Expected: Login succeeds with new password
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-PROF-004  CHANGE PASSWORD WITH WRONG CURRENT PASSWORD
+  Steps:
+    1. Enter an incorrect current password
+  Expected: Toast error "Current password is incorrect"
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-PROF-005  THEME TOGGLE
+  Steps:
+    1. Click Dark on /profile
+  Expected: Entire app switches to dark theme, persists on refresh
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-PROF-006  STATISTICS DISPLAY
+  Steps:
+    1. Create several notes, then view /profile
+  Expected: Total notes, notes this month, and words written
+             reflect actual data
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-PROF-007  EXPORT NOTES AS JSON
+  Steps:
+    1. Click "Export notes as JSON"
+  Expected: A .json file downloads containing the user's notes
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-PROF-008  DELETE ACCOUNT
+  Steps:
+    1. Click "Delete account", confirm in the modal
+  Expected:
+    - Account, all notes, and activity logs are deleted
+    - User is logged out and redirected to /login
+  Result: [ ]
+  Notes: __________________________________________________
+
+----------------------------------------------------------------
+MODULE 7 — RESPONSIVE DESIGN
+----------------------------------------------------------------
+
+TEST-RESP-001  MOBILE (375px)
+  Steps:
+    1. DevTools → set width to 375px
+  Expected: Sidebar hidden/collapsed, single-column note grid,
+             no horizontal overflow
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-RESP-002  TABLET (768px)
+  Steps:
+    1. Set viewport to 768px
+  Expected: 2-column masonry grid, layout remains usable
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-RESP-003  DESKTOP (1440px)
+  Steps:
+    1. Set viewport to 1440px
+  Expected: Full sidebar + 4-column masonry grid
+  Result: [ ]
+  Notes: __________________________________________________
+
+----------------------------------------------------------------
+MODULE 8 — DEPLOYMENT / PRODUCTION
+----------------------------------------------------------------
+
+TEST-DEPLOY-001  BACKEND LIVE ON RENDER
+  Steps:
+    1. Visit <render-url>/api/health
+  Expected: {"status":"ok",...}
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-DEPLOY-002  FRONTEND LIVE ON VERCEL
+  Steps:
+    1. Visit <vercel-url>/login
+  Expected: Login page renders correctly
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-DEPLOY-003  CROSS-ORIGIN REQUESTS SUCCEED (CORS)
+  Steps:
+    1. On the live Vercel URL, register a new account
+  Expected:
+    - No CORS error in browser console
+    - Request succeeds against the Render backend
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-DEPLOY-004  REFRESH TOKEN COOKIE WORKS CROSS-ORIGIN
+  Steps:
+    1. On the live site, stay logged in past access token expiry
+       (or simulate a 401)
+  Expected: Silent refresh works, user is not logged out
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-DEPLOY-005  COLD START BEHAVIOR (RENDER FREE TIER)
+  Steps:
+    1. Leave the app idle for 15+ minutes
+    2. Make a request (e.g. load /notes)
+  Expected: First request is slow (~30-50s) as Render wakes the
+             instance, then behaves normally
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-DEPLOY-006  FULL LIVE USER JOURNEY
+  Steps:
+    1. On the live URL: register → create a note → pin it →
+       search for it → archive it → trash it → restore it →
+       edit profile → export notes → log out → log back in
+  Expected: Every step works exactly as it does locally
+  Result: [ ]
+  Notes: __________________________________________________
+
+----------------------------------------------------------------
+BUG LOG TEMPLATE
+----------------------------------------------------------------
+
+Use this table to track any FAIL results:
+
+BUG-001
+  Test Case  : TEST-___-___
+  Description: [What went wrong]
+  Steps to Reproduce: [Steps]
+  Expected   : [What should happen]
+  Actual     : [What actually happened]
+  Priority   : P1 / P2 / P3
+  Status     : Open / Fixed / Deferred
+  Fix Applied: [What you changed to fix it]
+
+----------------------------------------------------------------
+FINAL TEST SUMMARY
+----------------------------------------------------------------
+
+Total Test Cases   : 43
+Passed  [P]        : ____
+Failed  [F]        : ____
+Skipped [S]        : ____
+Pass Rate          : ____%
+
+Sign-off: _________________ Date: _____________
+
+================================================================
+END OF MANUAL TESTING DOCUMENT
+================================================================
