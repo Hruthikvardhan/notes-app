@@ -20,7 +20,7 @@ A full-featured, Google Keep–style notes application built with **MongoDB, Exp
 - Register / login with JWT access + refresh tokens
 - Access token (15 min) sent as a Bearer header; refresh token (7 days) stored in an httpOnly cookie
 - Axios interceptor silently refreshes an expired access token and retries the original request — no visible logout on expiry
-- Change password, upload profile avatar (Cloudinary)
+- Upload profile avatar (Cloudinary)
 
 ### 📝 Notes — Full CRUD
 - **TEXT** notes with a live markdown editor and preview
