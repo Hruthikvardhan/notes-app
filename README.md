@@ -6,9 +6,9 @@ A full-featured, Google Keep–style notes application built with **MongoDB, Exp
 
 ## 🔗 Live Demo
 
-- **Frontend (Vercel):** [https://your-app.vercel.app](https://your-app.vercel.app)
-- **Backend API (Render):** [https://your-app.onrender.com/api/health](https://your-app.onrender.com/api/health)
-- **GitHub:** [https://github.com/<your-username>/notes-app-mern](https://github.com/<your-username>/notes-app-mern)
+- **Frontend (Vercel):** [https://notes-app-vhv-latest.vercel.app](https://notes-app-vhv-latest.vercel.app)
+- **Backend API (Render):** [https://notes-app-pu8c.onrender.com/api/health](https://notes-app-pu8c.onrender.com/api/health)
+- **GitHub:** [https://github.com/Hruthikvardhan/notes-app-mern](https://github.com/Hruthikvardhan/notes-app)
 
 > Note: the backend is hosted on Render's free tier, which spins down after ~15 minutes of inactivity. The first request after idle can take 30-50 seconds to wake up — this is expected, not a bug.
 
