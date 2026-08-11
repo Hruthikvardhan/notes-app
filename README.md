@@ -13,6 +13,20 @@ A full-featured, Google Keep–style notes application built with **MongoDB, Exp
 > Note: the backend is hosted on Render's free tier, which spins down after ~15 minutes of inactivity. The first request after idle can take 30-50 seconds to wake up — this is expected, not a bug.
 
 ---
+### 📸 Screenshots
+
+<table>
+  <tr>
+    <td><img src="./screenshots/screenshot-1.png" width="100%"></td>
+    <td><img src="./screenshots/screenshot-2.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td><img src="./screenshots/screenshot-3.png" width="100%"></td>
+    <td><img src="./screenshots/screenshot-4.png" width="100%"></td>
+  </tr>
+</table>
+
+---
 
 ## ✨ Features
 
