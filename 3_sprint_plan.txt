@@ -389,6 +389,89 @@ SPRINT 5 DONE WHEN:
     on the live URLs
   ✓ README written with live links
 
+
+================================================================
+SPRINT 6 — POST-LAUNCH HARDENING (REAL BUGS FOUND IN PRODUCTION)
+Duration : Day 11
+Goal     : Fix issues discovered only after using the live app
+           on real devices — dark mode contrast, mobile nav,
+           and category creation
+================================================================
+
+TASK-056  Root-cause dark mode contrast failures              [P1] [x]
+  - Diagnosed: custom Tailwind colors (text-ink, border-ink,
+    bg-ink) are static hex values, not theme-aware — any usage
+    without an explicit dark: pair renders dark-on-dark and
+    becomes invisible when the app is in dark mode
+  - Audited every .jsx file for unpaired ink utilities and
+    added the correct dark: variant to each occurrence
+  - Fixed two hover-state regressions where a previous manual
+    patch had turned a hover-only dark background into an
+    always-on background
+  - Wired the markdown editor's own internal theme
+    (data-color-mode) to the app's real ThemeContext instead
+    of leaving it hardcoded to "light"
+  Estimated time: 90 min
+
+TASK-057  Fix missing mobile navigation                        [P1] [x]
+  - Diagnosed: Sidebar was `hidden md:flex` with no fallback,
+    so phones and small tablets had zero way to reach Pinned,
+    Archive, Trash, Settings, Categories, or even New Note
+  - Rebuilt Sidebar as a single component that renders as a
+    static column on desktop and a hamburger-triggered
+    slide-in drawer (with dark overlay) below the md breakpoint
+  - Added the hamburger button to Topbar, wired open/close
+    state through Layout
+  Estimated time: 60 min
+
+TASK-058  Fix touch-unreachable note card actions              [P1] [x]
+  - Diagnosed: pin/color/edit/archive/delete buttons on each
+    note card were `opacity-0 group-hover:opacity-100` — on
+    touch devices there is no hover state, so these controls
+    were completely unusable on phones and tablets
+  - Changed to always-visible on mobile, hover-reveal
+    preserved only at md breakpoint and above
+  Estimated time: 20 min
+
+TASK-059  Fix category creation and category data flow         [P1] [x]
+  - Added the "+ New category" modal that was missing from
+    the sidebar (name input + 11 preset colors)
+  - Diagnosed a fetch-timing bug: categories were only loaded
+    when visiting the main Notes page, so navigating directly
+    to Trash/Archive/Profile showed an empty category list in
+    the sidebar — moved the fetch to run once at the Layout
+    level so it's available on every protected route
+  - Added the category filter dropdown to Topbar, present in
+    the original requirements but never implemented
+  Estimated time: 45 min
+
+TASK-060  Fix .gitignore                                        [P2] [x]
+  - .gitignore was incorrectly excluding .env.example (the
+    safe template file, which should be committed) and had
+    inconsistent line endings from cross-platform editing
+  - Rewritten cleanly: node_modules/, .env, dist/, .DS_Store,
+    *.log
+  Estimated time: 10 min
+
+TASK-061  Full regression pass after fixes                      [P1] [x]
+  - Fresh npm install + npm run build on both client and
+    server from a clean checkout (no cached node_modules)
+  - Verified 0 build errors, verified no remaining unpaired
+    ink utility classes anywhere in the codebase (grep audit)
+  - Re-ran the manual test suite end to end on desktop,
+    tablet, and mobile viewport sizes, and in both themes
+  Estimated time: 45 min
+
+SPRINT 6 DONE WHEN:
+  ✓ Every page is readable in dark mode, verified individually
+  ✓ Full navigation is reachable on a 375px-wide screen
+  ✓ Note actions are usable on a real touch device, not just
+    a mouse
+  ✓ Categories can be created from the UI and appear
+    immediately, regardless of which page is currently open
+  ✓ A clean git clone → npm install → npm run build succeeds
+    on both client and server with zero errors
+
 ================================================================
 TASK SUMMARY TABLE
 ================================================================
@@ -450,10 +533,16 @@ Sprint  Task     Description                              Priority Status
   5     053      Update CLIENT_URL on Render                       P1     [ ]
   5     054      Post-deploy verification                          P1     [ ]
   5     055      README.md                                         P3     [ ]
+  6     056      Root-cause dark mode contrast failures           P1     [ ]
+  6     057      Fix missing mobile navigation                     P1     [ ]
+  6     058      Fix touch-unreachable note card actions           P1     [ ]
+  6     059      Fix category creation and data flow               P1     [ ]
+  6     060      Fix .gitignore                                    P2     [ ]
+  6     061      Full regression pass after fixes                  P1     [ ]
 
-TOTAL TASKS : 55
-P1 (Must)   : 44
-P2 (Should) : 9
+TOTAL TASKS : 61
+P1 (Must)   : 49
+P2 (Should) : 10
 P3 (Nice)   : 2
 
 ================================================================

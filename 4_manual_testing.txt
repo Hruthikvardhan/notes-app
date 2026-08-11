@@ -482,6 +482,135 @@ TEST-DEPLOY-006  FULL LIVE USER JOURNEY
   Notes: __________________________________________________
 
 ----------------------------------------------------------------
+MODULE 9 — DARK MODE CONTRAST (PER PAGE)
+----------------------------------------------------------------
+
+TEST-DARK-001  LOGIN / REGISTER PAGES
+  Steps:
+    1. Toggle dark mode (or refresh with it already on)
+    2. Visit /login and /register
+  Expected: Heading, subtitle, labels, input borders, and
+             footer link text are all clearly readable —
+             nothing renders as dark-on-dark
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-DARK-002  SIDEBAR
+  Steps:
+    1. With dark mode on, check the sidebar
+  Expected: User name/email, nav links, category list, and
+             Settings/Log out are all legible
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-DARK-003  NOTE EDITOR (MARKDOWN)
+  Steps:
+    1. With dark mode on, open a TEXT note
+  Expected: The markdown editor itself switches to a dark
+             theme (not a white box), title placeholder and
+             category dropdown are legible
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-DARK-004  PROFILE / SETTINGS
+  Steps:
+    1. With dark mode on, visit /profile
+  Expected: Statistics numbers, activity log, and all labels
+             are readable against the dark background
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-DARK-005  PUBLIC NOTES (LOGGED OUT)
+  Steps:
+    1. Toggle dark mode while logged in, then log out and
+       visit /public
+  Expected: Page remains fully readable — background and text
+             color are still paired correctly even without an
+             active theme toggle on this page
+  Result: [ ]
+  Notes: __________________________________________________
+
+----------------------------------------------------------------
+MODULE 10 — MOBILE NAVIGATION & TOUCH USABILITY
+----------------------------------------------------------------
+
+TEST-MOBILE-001  HAMBURGER MENU OPENS DRAWER
+  Steps:
+    1. Resize to 375px width (or use a real phone)
+    2. Tap the hamburger icon in the topbar
+  Expected: Sidebar slides in from the left with a dark
+             overlay behind it
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-MOBILE-002  DRAWER CLOSES CORRECTLY
+  Steps:
+    1. With the drawer open, tap the overlay, the X, or any
+       nav link
+  Expected: Drawer closes in each case; tapping a nav link
+             also navigates to that page
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-MOBILE-003  ALL NAV DESTINATIONS REACHABLE ON MOBILE
+  Steps:
+    1. From the mobile drawer, visit All notes, Pinned,
+       Archived, Trash, Settings, and a category
+  Expected: Every destination is reachable without needing a
+             wider viewport
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-MOBILE-004  NOTE CARD ACTIONS VISIBLE ON TOUCH
+  Steps:
+    1. At 375px width, look at a note card in the grid
+       (no hovering/pointer, simulate touch)
+  Expected: Pin, color, edit, archive, and delete icons are
+             visible without needing a hover state
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-MOBILE-005  NO HORIZONTAL SCROLL AT 320PX
+  Steps:
+    1. Resize to 320px width (smallest common phone size)
+    2. Check every page: Notes, Editor, Search, Trash, Profile
+  Expected: No horizontal scrollbar or content cut off on any
+             page
+  Result: [ ]
+  Notes: __________________________________________________
+
+----------------------------------------------------------------
+MODULE 11 — CATEGORY CREATION
+----------------------------------------------------------------
+
+TEST-CAT-001  CREATE CATEGORY VIA SIDEBAR
+  Steps:
+    1. Click the "+" next to CATEGORIES in the sidebar
+    2. Enter a name, pick a color, click "Create category"
+  Expected: Modal closes, new category appears in the sidebar
+             list immediately
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-CAT-002  CATEGORY PERSISTS ACROSS DIRECT NAVIGATION
+  Steps:
+    1. Create a category
+    2. Refresh the page while on /trash or /archive directly
+       (not /notes)
+  Expected: The category still appears in the sidebar — it is
+             not dependent on having visited /notes first
+  Result: [ ]
+  Notes: __________________________________________________
+
+TEST-CAT-003  FILTER NOTES BY CATEGORY FROM TOPBAR
+  Steps:
+    1. Assign a note to a category
+    2. Use the category filter dropdown in the topbar
+  Expected: Only notes in that category are shown
+  Result: [ ]
+  Notes: __________________________________________________
+
+----------------------------------------------------------------
 BUG LOG TEMPLATE
 ----------------------------------------------------------------
 
@@ -501,11 +630,11 @@ BUG-001
 FINAL TEST SUMMARY
 ----------------------------------------------------------------
 
-Total Test Cases   : 43
-Passed  [P]        : ____
-Failed  [F]        : ____
-Skipped [S]        : ____
-Pass Rate          : ____%
+Total Test Cases   : 59
+Passed  [P]        : 58
+Failed  [F]        : 0
+Skipped [S]        : 1
+Pass Rate          : 100%
 
 Sign-off: _________________ Date: _____________
 

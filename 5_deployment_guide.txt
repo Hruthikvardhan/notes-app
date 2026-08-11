@@ -347,6 +347,27 @@ ISSUE 7: Accidentally overwrote .env locally
   Fix   : Re-enter MONGO_URI and JWT secrets; consider keeping
           a backup copy outside the repo while developing
 
+ISSUE 8: .gitignore accidentally excludes .env.example
+  Cause : A malformed .gitignore can list .env.example alongside
+          .env, stripping out the safe template file that should
+          be committed for anyone else setting up the project
+  Fix   : .gitignore should only exclude node_modules/, .env,
+          dist/, .DS_Store, and *.log — never .env.example
+
+ISSUE 9: MongoDB connection times out on first run locally, then
+          works on retry
+  Cause : mongodb+srv:// connection strings resolve multiple
+          shard hosts via DNS SRV lookup; on some networks the
+          very first attempt can be slow enough to hit Mongoose's
+          default 10-second buffering timeout, even though the
+          connection string and credentials are correct
+  Fix   : Simply restart the server (npm run dev again). If it
+          fails repeatedly, verify DNS resolution works with
+          nslookup -type=SRV _mongodb._tcp.<cluster-address>
+          and verify raw TCP connectivity to port 27017 with
+          Test-NetConnection (PowerShell) before assuming the
+          credentials or Atlas network access rules are wrong
+
 ----------------------------------------------------------------
 SECTION 13 — FREE TIER LIMITS
 ----------------------------------------------------------------

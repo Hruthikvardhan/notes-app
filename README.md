@@ -8,7 +8,7 @@ A full-featured, Google Keep–style notes application built with **MongoDB, Exp
 
 - **Frontend (Vercel):** [https://your-app.vercel.app](https://your-app.vercel.app)
 - **Backend API (Render):** [https://your-app.onrender.com/api/health](https://your-app.onrender.com/api/health)
-- **GitHub:** [https://github.com/Hruthikvardhan/notes-app](https://github.com/Hruthikvardhan/notes-app)
+- **GitHub:** [https://github.com/<your-username>/notes-app-mern](https://github.com/<your-username>/notes-app-mern)
 
 > Note: the backend is hosted on Render's free tier, which spins down after ~15 minutes of inactivity. The first request after idle can take 30-50 seconds to wake up — this is expected, not a bug.
 
@@ -33,7 +33,9 @@ A full-featured, Google Keep–style notes application built with **MongoDB, Exp
 ### 🗂 Organization
 - Pin, archive, color-code (12 presets), tag, and categorize notes
 - Public/private toggle — public notes are viewable without logging in
-- Categories with their own color/icon; deleting a category detaches its notes instead of deleting them
+- Create categories directly from the sidebar (name + color modal); filter notes by category from the topbar
+- Categories load consistently across every page, not just the main notes view
+- Deleting a category detaches its notes instead of deleting them
 
 ### 🔍 Search
 - Debounced (300ms) full-text search backed by a MongoDB text index
@@ -45,9 +47,10 @@ A full-featured, Google Keep–style notes application built with **MongoDB, Exp
 - Recent activity log, export all notes as JSON, delete account (cascades all data)
 
 ### 🎨 UI/UX
-- Google Keep–style masonry grid (`react-masonry-css`)
+- Google Keep–style masonry grid (`react-masonry-css`), 1 to 4 columns by screen width
 - Framer Motion animations, skeleton loaders, empty states throughout
-- Fully responsive: 1 column on mobile up to 4 columns on desktop
+- Fully responsive down to 320px wide — hamburger-triggered slide-in navigation drawer on mobile/tablet, note-card actions always visible on touch devices
+- Dark mode audited for contrast on every page and component, including the markdown editor's own internal theme
 
 ---
 
@@ -213,6 +216,15 @@ Profile statistics (total notes, words written, notes this month) are computed w
 Deleting a note sets `isTrashed: true` and `trashedAt`; a background interval (`trashCleanupService.js`) runs on server boot and every 24 hours, permanently removing anything trashed more than 30 days ago.
 
 ---
+
+## 🩹 Notable Bugs Found and Fixed Post-Launch
+
+Real issues found by testing the deployed app on actual devices, not just desktop Chrome:
+
+- **Dark mode contrast**: custom Tailwind colors (`text-ink`, `border-ink`, `bg-ink`) are static hex values, not theme-aware — every usage without an explicit `dark:` pair rendered invisible in dark mode. Audited and fixed across the entire codebase.
+- **Mobile navigation missing entirely**: the sidebar was `hidden` below the `md` breakpoint with no fallback, leaving phone/tablet users with no way to reach Trash, Archive, Settings, or even create a note. Rebuilt as a hamburger-triggered slide-in drawer.
+- **Touch-unreachable note actions**: pin/edit/archive/delete buttons on note cards were hover-only — invisible and unusable on touch devices, which have no hover state. Now always visible below the `md` breakpoint.
+- **Category list inconsistency**: categories were only fetched when visiting the main Notes page, so the sidebar showed an empty list if a user landed directly on another route. Fixed by fetching once at the app-shell level.
 
 ## 🔮 Future Enhancements
 

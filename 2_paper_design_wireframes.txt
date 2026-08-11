@@ -263,24 +263,67 @@ SCREEN 9 — PUBLIC NOTES PAGE (no auth)
 
 
 ----------------------------------------------------------------
+SCREEN 10 — MOBILE NAVIGATION DRAWER
+----------------------------------------------------------------
+
+CLOSED STATE (hamburger visible in topbar):
+
++---------------------+
+| [=] Search...   [*] | <- hamburger, search, theme toggle
++---------------------+
+| [card]              |
+| [card]              |
++---------------------+
+
+OPEN STATE (drawer slides in from left, dark overlay behind):
+
++-------------------+-------------+
+| [av] Name     [X] |             |
+|      email        |   (dimmed   |
+|                    |  overlay,   |
+| [+ New note]       |   tap to    |
+|                    |   close)    |
+| All notes          |             |
+| Pinned             |             |
+| Archived           |             |
+| Trash              |             |
+|                    |             |
+| CATEGORIES  [+]    |             |
+| Work               |             |
+| Personal           |             |
+|                    |             |
+| Settings           |             |
+| Log out            |             |
++-------------------+-------------+
+
+NOTES:
+- Drawer slides in from the left edge (transform translateX),
+  ~280px wide, capped at 85% of viewport width
+- Tapping the dark overlay, the [X], or any nav link closes
+  the drawer automatically
+- On screens md and above, this drawer is never used — the
+  sidebar is always statically visible instead
+
+
+----------------------------------------------------------------
 MOBILE LAYOUT (375px width)
 ----------------------------------------------------------------
 
 MOBILE NOTES VIEW:
 +---------------------+
-| ☰   Notes      🔍   | ← simple header
+| [=] Search...  [*]  | <- hamburger opens drawer (Screen 10)
++---------------------+
+| sort v | color v     | <- horizontally scrollable filter row
 +---------------------+
 | [card]              |
 | [card]              |
 | [card]              |
-+---------------------+
-| [+ New note] ← FAB  |
 +---------------------+
 
-MOBILE NOTE:
-- Sidebar becomes a hidden drawer (hamburger menu)
-- Single-column masonry grid
-- Floating "+ New note" action button bottom-right
+MOBILE NOTE CARD ACTIONS:
+- Pin/color/edit/archive/delete icons are ALWAYS visible on
+  touch devices (not hover-revealed like on desktop), since
+  touch has no hover state to reveal them with
 
 
 ================================================================

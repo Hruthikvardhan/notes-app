@@ -83,11 +83,15 @@ FR-06  SEARCH
   FR-06.3  Matched terms highlighted in results
 
 FR-07  CATEGORIES
-  FR-07.1  Create a category with name, color, icon
+  FR-07.1  Create a category with name, color, icon, via a
+            dedicated "+ New category" modal in the sidebar
   FR-07.2  Edit or delete a category
   FR-07.3  View all notes under a category
-  FR-07.4  Deleting a category detaches its notes (does not
+  FR-07.4  Filter the main notes grid by category from the topbar
+  FR-07.5  Deleting a category detaches its notes (does not
             delete the notes themselves)
+  FR-07.6  Category list loads on every protected page, not only
+            the main notes page (fetched once at app-shell level)
 
 FR-08  TRASH
   FR-08.1  Trashed notes list with days-remaining indicator
@@ -127,10 +131,19 @@ NFR-01  PERFORMANCE
 
 NFR-02  RESPONSIVENESS
   NFR-02.1  Masonry grid adapts from 1 to 4 columns by width
-  NFR-02.2  Sidebar hidden on small screens (mobile-first)
+  NFR-02.2  On screens below the md breakpoint, primary navigation
+             (Sidebar) is reachable via a hamburger-triggered
+             slide-in drawer, not hidden outright
+  NFR-02.3  Note card actions (pin/color/edit/archive/delete) are
+             always visible on touch devices, hover-revealed only
+             on pointer (mouse) devices
+  NFR-02.4  No horizontal scroll or overflow on screens as narrow
+             as 320px
 
 NFR-03  USABILITY
-  NFR-03.1  Light/Dark theme support
+  NFR-03.1  Light/Dark theme support, verified for text/border
+             contrast on every page and component (custom Tailwind
+             colors require explicit dark: pairing, not automatic)
   NFR-03.2  Toast notifications for all create/update/delete
              actions
   NFR-03.3  Empty states shown for every list view (no notes,
