@@ -17,12 +17,12 @@ A full-featured, Google Keep–style notes application built with **MongoDB, Exp
 
 <table>
   <tr>
-    <td><img src="./screenshots/screenshot-1.png" width="100%"></td>
-    <td><img src="./screenshots/screenshot-2.png" width="100%"></td>
+    <td><img src="./screenshots/screenshot-1.png" ></td>
+    <td><img src="./screenshots/screenshot-2.png" ></td>
   </tr>
   <tr>
-    <td><img src="./screenshots/screenshot-3.png" width="100%"></td>
-    <td><img src="./screenshots/screenshot-4.png" width="100%"></td>
+    <td><img src="./screenshots/screenshot-3.png" ></td>
+    <td><img src="./screenshots/screenshot-4.png" ></td>
   </tr>
 </table>
 
